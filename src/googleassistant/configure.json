@@ -10,20 +10,26 @@
     "libraries": {
         "grpc": {
             "label": "gRPC",
+            "headers": ["grpc.h"],
             "sources": [
-                { "type": "pkgConfig", "args": "grpc" }
+                { "type": "pkgConfig", "args": "grpc" },
+                { "libs": "-lgrpc" }
             ]
         },
-        "grpc++": {
+        "grpcpp": {
             "label": "gRPC++",
+            "headers": ["grpc++.h"],
             "sources": [
-                { "type": "pkgConfig", "args": "grpc++" }
+                { "type": "pkgConfig", "args": "grpc++" },
+                { "libs": "-lgrpc++" }
             ]
         },
         "protobuf": {
             "label": "Protocol Buffers",
+            "headers": ["google/protobuf/port_def.inc"],
             "sources": [
-                { "type": "pkgConfig", "args": "protobuf" }
+                { "type": "pkgConfig", "args": "protobuf" },
+                { "libs": "-lprotobuf" }
             ]
         }
     },
@@ -34,9 +40,9 @@
             "condition": "libs.grpc",
             "output": [ "privateFeature", "feature" ]
         },
-        "grpc++": {
+        "grpcpp": {
             "label": "gRPC++",
-            "condition": "libs.grpc++",
+            "condition": "libs.grpcpp",
             "output": [ "privateFeature", "feature" ]
         },
         "protobuf": {
@@ -51,7 +57,7 @@
             "section": "Qt Google Assistant",
             "entries": [
                 "grpc",
-                "grpc++",
+                "grpcpp",
                 "protobuf"
             ]
         }
