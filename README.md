@@ -1,2 +1,1 @@
-# qtgoogleassistant
-Google Assistant SDK for devices - Qt
+# Google Assistant SDK for devices - Qt

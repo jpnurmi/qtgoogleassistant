@@ -1,0 +1,68 @@
+isEmpty(PROTOC):PROTOC = protoc
+isEmpty(PROTOC_GRPC_PLUGIN):PROTOC_GRPC_PLUGIN = /usr/local/bin/grpc_cpp_plugin ### TODO
+
+isEmpty(PROTOC_DIR):PROTOC_DIR = .protoc
+isEmpty(PROTOC_EXT_H):PROTOC_EXT_H = .pb.h
+isEmpty(PROTOC_EXT_CC):PROTOC_EXT_CC = .pb.cc
+isEmpty(GRPC_EXT_H):GRPC_EXT_H = .grpc.pb.h
+isEmpty(GRPC_EXT_CC):GRPC_EXT_CC = .grpc.pb.cc
+
+isEmpty(PROTO_PATH):$$_PRO_FILE_PWD_
+!isEqual(PROTO_PATH, $$_PRO_FILE_PWD_): \
+    VPATH += $$PROTO_PATH
+
+INCLUDEPATH += $$relative_path($${PROTOC_DIR}, $$OUT_PWD)
+
+COMMON_FLAGS = --proto_path=$$absolute_path($$PROTO_PATH, $$_PRO_FILE_PWD_)
+for (inc, PROTO_INCLUDE): \
+    COMMON_FLAGS += -I$$absolute_path($$inc, $$_PRO_FILE_PWD_)
+
+PROTOC_FLAGS = \
+    $$COMMON_FLAGS \
+    --cpp_out=$$absolute_path($${PROTOC_DIR}, $$OUT_PWD)
+
+GRPC_FLAGS = \
+    $$COMMON_FLAGS \
+    --grpc_out=$$absolute_path($${PROTOC_DIR}, $$OUT_PWD) \
+    --plugin=protoc-gen-grpc=$${PROTOC_GRPC_PLUGIN}
+
+defineReplace(relativeProtoFilePath) {
+    absolute_proto_path = $$absolute_path($$PROTO_PATH, $$_PRO_FILE_PWD_)
+    absolute_file_path = $$absolute_path($$1, $$absolute_proto_path)
+    relative_file_path = $$relative_path($$absolute_file_path, $$absolute_proto_path)
+    return($$replace(relative_file_path, ".proto$", ""))
+}
+
+protoc_header.name = PROTOC ${QMAKE_FILE_BASE}$${PROTOC_EXT_H}
+protoc_header.input = PROTO_FILES
+protoc_header.output = $${PROTOC_DIR}/${QMAKE_FUNC_FILE_IN_relativeProtoFilePath}$${PROTOC_EXT_H}
+protoc_header.variable_out = GENERATED_FILES
+protoc_header.commands = $${PROTOC} ${QMAKE_FILE_IN} $${PROTOC_FLAGS}
+silent:protoc_header.commands = @echo protoc ${QMAKE_FILE_IN} && $$protoc_header.commands
+QMAKE_EXTRA_COMPILERS += protoc_header
+
+protoc_source.name = PROTOC ${QMAKE_FILE_BASE}$${PROTOC_EXT_CC}
+protoc_source.input = PROTO_FILES
+protoc_source.output = $${PROTOC_DIR}/${QMAKE_FUNC_FILE_IN_relativeProtoFilePath}$${PROTOC_EXT_CC}
+protoc_source.variable_out = GENERATED_SOURCES
+protoc_source.depends = $$protoc_header.output
+protoc_source.commands = $$escape_expand(\\n)
+protoc_source.CONFIG += target_predeps
+QMAKE_EXTRA_COMPILERS += protoc_source
+
+grpc_header.name = GRPC ${QMAKE_FILE_BASE}$${GRPC_EXT_H}
+grpc_header.input = PROTO_FILES
+grpc_header.output = $${PROTOC_DIR}/${QMAKE_FUNC_FILE_IN_relativeProtoFilePath}$${GRPC_EXT_H}
+grpc_header.variable_out = GENERATED_FILES
+grpc_header.commands = $${PROTOC} ${QMAKE_FILE_IN} $${GRPC_FLAGS}
+silent:grpc_header.commands = @echo grpc ${QMAKE_FILE_IN} && $$grpc_header.commands
+QMAKE_EXTRA_COMPILERS += grpc_header
+
+grpc_source.name = GRPC ${QMAKE_FILE_BASE}$${GRPC_EXT_CC}
+grpc_source.input = PROTO_FILES
+grpc_source.output = $${PROTOC_DIR}/${QMAKE_FUNC_FILE_IN_relativeProtoFilePath}$${GRPC_EXT_CC}
+grpc_source.variable_out = GENERATED_SOURCES
+grpc_source.depends = $$grpc_header.output
+grpc_source.commands = $$escape_expand(\\n)
+grpc_source.CONFIG += target_predeps
+QMAKE_EXTRA_COMPILERS += grpc_source

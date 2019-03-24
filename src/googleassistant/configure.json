@@ -1,0 +1,59 @@
+{
+    "module": "googleassistant",
+    "depends": [
+        "core",
+        "network",
+        "networkauth",
+        "multimedia"
+    ],
+
+    "libraries": {
+        "grpc": {
+            "label": "gRPC",
+            "sources": [
+                { "type": "pkgConfig", "args": "grpc" }
+            ]
+        },
+        "grpc++": {
+            "label": "gRPC++",
+            "sources": [
+                { "type": "pkgConfig", "args": "grpc++" }
+            ]
+        },
+        "protobuf": {
+            "label": "Protocol Buffers",
+            "sources": [
+                { "type": "pkgConfig", "args": "protobuf" }
+            ]
+        }
+    },
+
+    "features": {
+        "grpc": {
+            "label": "gRPC",
+            "condition": "libs.grpc",
+            "output": [ "privateFeature", "feature" ]
+        },
+        "grpc++": {
+            "label": "gRPC++",
+            "condition": "libs.grpc++",
+            "output": [ "privateFeature", "feature" ]
+        },
+        "protobuf": {
+            "label": "Protocol Buffers",
+            "condition": "libs.protobuf",
+            "output": [ "privateFeature", "feature" ]
+        }
+    },
+
+    "summary": [
+        {
+            "section": "Qt Google Assistant",
+            "entries": [
+                "grpc",
+                "grpc++",
+                "protobuf"
+            ]
+        }
+    ]
+}
