@@ -1,5 +1,5 @@
 isEmpty(PROTOC):PROTOC = protoc
-isEmpty(PROTOC_GRPC_PLUGIN):PROTOC_GRPC_PLUGIN = /usr/local/bin/grpc_cpp_plugin ### TODO
+isEmpty(PROTOC_GRPC_PLUGIN):PROTOC_GRPC_PLUGIN = grpc_cpp_plugin ### TODO
 
 isEmpty(PROTOC_DIR):PROTOC_DIR = .protoc
 isEmpty(PROTOC_EXT_H):PROTOC_EXT_H = .pb.h

@@ -10,7 +10,7 @@
     "libraries": {
         "grpc": {
             "label": "gRPC",
-            "headers": ["grpc.h"],
+            "headers": ["grpc/grpc.h"],
             "sources": [
                 { "type": "pkgConfig", "args": "grpc" },
                 { "libs": "-lgrpc" }
@@ -18,7 +18,7 @@
         },
         "grpcpp": {
             "label": "gRPC++",
-            "headers": ["grpc++.h"],
+            "headers": ["grpc++/grpc++.h"],
             "sources": [
                 { "type": "pkgConfig", "args": "grpc++" },
                 { "libs": "-lgrpc++" }
@@ -26,7 +26,7 @@
         },
         "protobuf": {
             "label": "Protocol Buffers",
-            "headers": ["google/protobuf/port_def.inc"],
+            "headers": ["google/protobuf/message.h"],
             "sources": [
                 { "type": "pkgConfig", "args": "protobuf" },
                 { "libs": "-lprotobuf" }
