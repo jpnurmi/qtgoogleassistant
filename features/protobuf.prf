@@ -1,5 +1,5 @@
 isEmpty(PROTOC):PROTOC = protoc
-isEmpty(PROTOC_GRPC_PLUGIN):PROTOC_GRPC_PLUGIN = grpc_cpp_plugin ### TODO
+isEmpty(PROTOC_GRPC_PLUGIN):PROTOC_GRPC_PLUGIN = /usr/local/bin/grpc_cpp_plugin ### TODO
 
 isEmpty(PROTOC_DIR):PROTOC_DIR = .protoc
 isEmpty(PROTOC_EXT_H):PROTOC_EXT_H = .pb.h
@@ -26,6 +26,11 @@ GRPC_FLAGS = \
     --grpc_out=$$absolute_path($${PROTOC_DIR}, $$OUT_PWD) \
     --plugin=protoc-gen-grpc=$${PROTOC_GRPC_PLUGIN}
 
+defineReplace(absoluteProtoFilePath) {
+    absolute_file_path = $$absolute_path($$1, $$_PRO_FILE_PWD_)
+    return($$absolute_file_path)
+}
+
 defineReplace(relativeProtoFilePath) {
     absolute_proto_path = $$absolute_path($$PROTO_PATH, $$_PRO_FILE_PWD_)
     absolute_file_path = $$absolute_path($$1, $$absolute_proto_path)
@@ -37,7 +42,7 @@ protoc_header.name = PROTOC ${QMAKE_FILE_BASE}$${PROTOC_EXT_H}
 protoc_header.input = PROTO_FILES
 protoc_header.output = $${PROTOC_DIR}/${QMAKE_FUNC_FILE_IN_relativeProtoFilePath}$${PROTOC_EXT_H}
 protoc_header.variable_out = GENERATED_FILES
-protoc_header.commands = $${PROTOC} ${QMAKE_FILE_IN} $${PROTOC_FLAGS}
+protoc_header.commands = $${PROTOC} ${QMAKE_FUNC_FILE_IN_absoluteProtoFilePath} $${PROTOC_FLAGS}
 silent:protoc_header.commands = @echo protoc ${QMAKE_FILE_IN} && $$protoc_header.commands
 QMAKE_EXTRA_COMPILERS += protoc_header
 
@@ -54,7 +59,7 @@ grpc_header.name = GRPC ${QMAKE_FILE_BASE}$${GRPC_EXT_H}
 grpc_header.input = PROTO_FILES
 grpc_header.output = $${PROTOC_DIR}/${QMAKE_FUNC_FILE_IN_relativeProtoFilePath}$${GRPC_EXT_H}
 grpc_header.variable_out = GENERATED_FILES
-grpc_header.commands = $${PROTOC} ${QMAKE_FILE_IN} $${GRPC_FLAGS}
+grpc_header.commands = $${PROTOC} ${QMAKE_FUNC_FILE_IN_absoluteProtoFilePath} $${GRPC_FLAGS}
 silent:grpc_header.commands = @echo grpc ${QMAKE_FILE_IN} && $$grpc_header.commands
 QMAKE_EXTRA_COMPILERS += grpc_header
 

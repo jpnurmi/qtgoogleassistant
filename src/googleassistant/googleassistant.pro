@@ -1,12 +1,11 @@
 TARGET = QtGoogleAssistant
 MODULE = googleassistant
 
-QMAKE_USE_PRIVATE = googleapis
 QT = core-private networkauth multimedia
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
-INCLUDEPATH += $$QMAKE_INCDIR_GRPC $$QMAKE_INCDIR_GRPCPP $$QMAKE_INCDIR_PROTOBUF
-LIBS += $$QMAKE_LIBS_GRPC $$QMAKE_LIBS_GRPCPP $$QMAKE_LIBS_PROTOBUF
+QMAKE_USE_PRIVATE += googleapis
+QMAKE_USE += grpc grpcpp protobuf
 
 HEADERS += \
     $$PWD/qgoogleassistant.h \
