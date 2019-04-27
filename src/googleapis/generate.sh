@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROTOC=protoc
-GRPC_CPP_PLUGIN=/usr/local/bin/grpc_cpp_plugin
+GRPC_CPP_PLUGIN=/usr/bin/grpc_cpp_plugin
 
 PROTO_DIR=../3rdparty/googleapis
 PROTO_FILES="\

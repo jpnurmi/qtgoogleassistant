@@ -13,7 +13,6 @@
 #include <grpcpp/impl/codegen/client_callback.h>
 #include <grpcpp/impl/codegen/method_handler_impl.h>
 #include <grpcpp/impl/codegen/rpc_service_method.h>
-#include <grpcpp/impl/codegen/server_callback.h>
 #include <grpcpp/impl/codegen/service_type.h>
 #include <grpcpp/impl/codegen/sync_stream.h>
 namespace google {
@@ -37,10 +36,6 @@ EmbeddedAssistant::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& 
 
 ::grpc::ClientReaderWriter< ::google::assistant::embedded::v1alpha2::AssistRequest, ::google::assistant::embedded::v1alpha2::AssistResponse>* EmbeddedAssistant::Stub::AssistRaw(::grpc::ClientContext* context) {
   return ::grpc::internal::ClientReaderWriterFactory< ::google::assistant::embedded::v1alpha2::AssistRequest, ::google::assistant::embedded::v1alpha2::AssistResponse>::Create(channel_.get(), rpcmethod_Assist_, context);
-}
-
-void EmbeddedAssistant::Stub::experimental_async::Assist(::grpc::ClientContext* context, ::grpc::experimental::ClientBidiReactor< ::google::assistant::embedded::v1alpha2::AssistRequest,::google::assistant::embedded::v1alpha2::AssistResponse>* reactor) {
-  ::grpc::internal::ClientCallbackReaderWriterFactory< ::google::assistant::embedded::v1alpha2::AssistRequest,::google::assistant::embedded::v1alpha2::AssistResponse>::Create(stub_->channel_.get(), stub_->rpcmethod_Assist_, context, reactor);
 }
 
 ::grpc::ClientAsyncReaderWriter< ::google::assistant::embedded::v1alpha2::AssistRequest, ::google::assistant::embedded::v1alpha2::AssistResponse>* EmbeddedAssistant::Stub::AsyncAssistRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) {

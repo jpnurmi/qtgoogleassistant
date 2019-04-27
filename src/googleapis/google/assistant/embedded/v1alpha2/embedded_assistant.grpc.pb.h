@@ -25,11 +25,9 @@
 #include <grpcpp/impl/codegen/async_generic_service.h>
 #include <grpcpp/impl/codegen/async_stream.h>
 #include <grpcpp/impl/codegen/async_unary_call.h>
-#include <grpcpp/impl/codegen/client_callback.h>
 #include <grpcpp/impl/codegen/method_handler_impl.h>
 #include <grpcpp/impl/codegen/proto_utils.h>
 #include <grpcpp/impl/codegen/rpc_method.h>
-#include <grpcpp/impl/codegen/server_callback.h>
 #include <grpcpp/impl/codegen/service_type.h>
 #include <grpcpp/impl/codegen/status.h>
 #include <grpcpp/impl/codegen/stub_options.h>
@@ -154,7 +152,6 @@ class EmbeddedAssistant final {
       // Although the precise order of responses is not guaranteed, sequential
       // `AssistResponse.audio_out` messages will always contain sequential portions
       // of audio.
-      virtual void Assist(::grpc::ClientContext* context, ::grpc::experimental::ClientBidiReactor< ::google::assistant::embedded::v1alpha2::AssistRequest,::google::assistant::embedded::v1alpha2::AssistResponse>* reactor) = 0;
     };
     virtual class experimental_async_interface* experimental_async() { return nullptr; }
   private:
@@ -177,7 +174,6 @@ class EmbeddedAssistant final {
     class experimental_async final :
       public StubInterface::experimental_async_interface {
      public:
-      void Assist(::grpc::ClientContext* context, ::grpc::experimental::ClientBidiReactor< ::google::assistant::embedded::v1alpha2::AssistRequest,::google::assistant::embedded::v1alpha2::AssistResponse>* reactor) override;
      private:
       friend class Stub;
       explicit experimental_async(Stub* stub): stub_(stub) { }
@@ -267,29 +263,6 @@ class EmbeddedAssistant final {
   };
   typedef WithAsyncMethod_Assist<Service > AsyncService;
   template <class BaseClass>
-  class ExperimentalWithCallbackMethod_Assist : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
-   public:
-    ExperimentalWithCallbackMethod_Assist() {
-      ::grpc::Service::experimental().MarkMethodCallback(0,
-        new ::grpc::internal::CallbackBidiHandler< ::google::assistant::embedded::v1alpha2::AssistRequest, ::google::assistant::embedded::v1alpha2::AssistResponse>(
-          [this] { return this->Assist(); }));
-    }
-    ~ExperimentalWithCallbackMethod_Assist() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status Assist(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::google::assistant::embedded::v1alpha2::AssistResponse, ::google::assistant::embedded::v1alpha2::AssistRequest>* stream)  override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::experimental::ServerBidiReactor< ::google::assistant::embedded::v1alpha2::AssistRequest, ::google::assistant::embedded::v1alpha2::AssistResponse>* Assist() {
-      return new ::grpc::internal::UnimplementedBidiReactor<
-        ::google::assistant::embedded::v1alpha2::AssistRequest, ::google::assistant::embedded::v1alpha2::AssistResponse>;}
-  };
-  typedef ExperimentalWithCallbackMethod_Assist<Service > ExperimentalCallbackService;
-  template <class BaseClass>
   class WithGenericMethod_Assist : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
@@ -325,28 +298,6 @@ class EmbeddedAssistant final {
     void RequestAssist(::grpc::ServerContext* context, ::grpc::ServerAsyncReaderWriter< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* stream, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncBidiStreaming(0, context, stream, new_call_cq, notification_cq, tag);
     }
-  };
-  template <class BaseClass>
-  class ExperimentalWithRawCallbackMethod_Assist : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
-   public:
-    ExperimentalWithRawCallbackMethod_Assist() {
-      ::grpc::Service::experimental().MarkMethodRawCallback(0,
-        new ::grpc::internal::CallbackBidiHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-          [this] { return this->Assist(); }));
-    }
-    ~ExperimentalWithRawCallbackMethod_Assist() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status Assist(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::google::assistant::embedded::v1alpha2::AssistResponse, ::google::assistant::embedded::v1alpha2::AssistRequest>* stream)  override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::experimental::ServerBidiReactor< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* Assist() {
-      return new ::grpc::internal::UnimplementedBidiReactor<
-        ::grpc::ByteBuffer, ::grpc::ByteBuffer>;}
   };
   typedef Service StreamedUnaryService;
   typedef Service SplitStreamedService;
