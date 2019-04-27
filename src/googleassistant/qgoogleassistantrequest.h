@@ -149,7 +149,7 @@ class Q_GOOGLEASSISTANT_EXPORT QGoogleAssistantDialogStateIn
     Q_PROPERTY(QString languageCode READ languageCode WRITE setLanguageCode)
     Q_PROPERTY(bool hasDeviceLocation READ hasDeviceLocation)
     Q_PROPERTY(QGoogleAssistantDeviceLocation deviceLocation READ deviceLocation WRITE setDeviceLocation)
-    Q_PROPERTY(bool isNnewConversation READ isNewConversation WRITE setNewConversation)
+    Q_PROPERTY(bool isNewConversation READ isNewConversation WRITE setNewConversation)
 
 public:
     QGoogleAssistantDialogStateIn();
