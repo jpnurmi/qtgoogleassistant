@@ -40,7 +40,6 @@ limitations under the License.
 
 #include "qgoogleassistantchannel_p.h"
 #include "qgoogleassistant_p.h"
-#include "qgoogleassistantauth.h"
 #include "qgoogleassistantrequest.h"
 #include "qgoogleassistantresponse.h"
 
@@ -109,7 +108,7 @@ static std::shared_ptr<grpc::Channel> createChannel(QGoogleAssistant *assistant)
 
 static std::shared_ptr<grpc::ClientContext> createContext(QGoogleAssistant *assistant)
 {
-    std::string json = QJsonDocument(assistant->auth()->credentials()).toJson().toStdString();
+    std::string json = QJsonDocument(assistant->credentials()).toJson().toStdString();
     std::shared_ptr<grpc::CallCredentials> creds = grpc::GoogleRefreshTokenCredentials(json);
     if (!creds) {
         qCritical() << "QGoogleAssistant: the credentials are invalid. "

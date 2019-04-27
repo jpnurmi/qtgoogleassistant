@@ -16,7 +16,6 @@ HEADERS += \
     $$PWD/qgoogleassistantaudioinput_p.h \
     $$PWD/qgoogleassistantaudiooutput.h \
     $$PWD/qgoogleassistantaudiooutput_p.h \
-    $$PWD/qgoogleassistantauth.h \
     $$PWD/qgoogleassistantchannel_p.h \
     $$PWD/qgoogleassistantrequest.h \
     $$PWD/qgoogleassistantresponse.h \
@@ -27,7 +26,6 @@ SOURCES += \
     $$PWD/qgoogleassistantaudio.cpp \
     $$PWD/qgoogleassistantaudioinput.cpp \
     $$PWD/qgoogleassistantaudiooutput.cpp \
-    $$PWD/qgoogleassistantauth.cpp \
     $$PWD/qgoogleassistantchannel.cpp \
     $$PWD/qgoogleassistantrequest.cpp \
     $$PWD/qgoogleassistantresponse.cpp

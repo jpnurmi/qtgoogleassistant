@@ -56,13 +56,19 @@ public:
     void receiveResponse(const QGoogleAssistantResponse &response);
     void finish(QGoogleAssistant::Status status, const QString &error);
 
+    bool authenticated = false;
     QGoogleAssistant::Status status = QGoogleAssistant::Ok;
     QLocale locale = QLocale(QStringLiteral("en-US"));
     QString apiEndpoint = QStringLiteral("embeddedassistant.googleapis.com");
     QString deviceIdentifier = QStringLiteral("default");
     QString deviceModel = QStringLiteral("default");
     QString lastError;
-    QGoogleAssistantAuth *auth = nullptr;
+    QString clientIdentifier;
+    QString clientSecret;
+    QString accessToken;
+    QString refreshToken;
+    QUrl authorizationUrl = QStringLiteral("https://accounts.google.com/o/oauth2/auth");
+    QUrl accessTokenUrl = QStringLiteral("https://accounts.google.com/o/oauth2/token");
     QGoogleAssistantAudioInput *audioInput = nullptr;
     QGoogleAssistantAudioOutput *audioOutput = nullptr;
     QGoogleAssistantChannel *channel = nullptr;

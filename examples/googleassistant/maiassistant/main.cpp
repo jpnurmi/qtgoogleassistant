@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<QGoogleAssistant>("QtGoogleAssistant", 1, 0, "GoogleAssistant");
-    qmlRegisterType<QGoogleAssistantAuth>();
     qmlRegisterType<QGoogleAssistantAudioInput>();
     qmlRegisterType<QGoogleAssistantAudioOutput>();
 

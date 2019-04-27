@@ -22,14 +22,15 @@
 #ifndef QGOOGLEASSISTANT_H
 #define QGOOGLEASSISTANT_H
 
+#include <QtCore/qjsonobject.h>
 #include <QtCore/qlocale.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qurl.h>
 #include <QtGoogleAssistant/qtgoogleassistantglobal.h>
 
 QT_BEGIN_NAMESPACE
 
-class QGoogleAssistantAuth;
 class QGoogleAssistantRequest;
 class QGoogleAssistantResponse;
 class QGoogleAssistantPrivate;
@@ -39,13 +40,19 @@ class QGoogleAssistantAudioOutput;
 class Q_GOOGLEASSISTANT_EXPORT QGoogleAssistant : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QGoogleAssistantAuth *auth READ auth CONSTANT)
     Q_PROPERTY(QGoogleAssistantAudioInput *audioInput READ audioInput CONSTANT)
     Q_PROPERTY(QGoogleAssistantAudioOutput *audioOutput READ audioOutput CONSTANT)
     Q_PROPERTY(QLocale locale READ locale WRITE setLocale NOTIFY localeChanged)
     Q_PROPERTY(QString apiEndpoint READ apiEndpoint WRITE setApiEndpoint NOTIFY apiEndpointChanged)
     Q_PROPERTY(QString deviceIdentifier READ deviceIdentifier WRITE setDeviceIdentifier NOTIFY deviceIdentifierChanged)
     Q_PROPERTY(QString deviceModel READ deviceModel WRITE setDeviceModel NOTIFY deviceModelChanged)
+    Q_PROPERTY(QString clientIdentifier READ clientIdentifier WRITE setClientIdentifier NOTIFY clientIdentifierChanged)
+    Q_PROPERTY(QString clientSecret READ clientSecret WRITE setClientSecret NOTIFY clientSecretChanged)
+    Q_PROPERTY(QString accessToken READ accessToken WRITE setAccessToken NOTIFY accessTokenChanged)
+    Q_PROPERTY(QString refreshToken READ refreshToken WRITE setRefreshToken NOTIFY refreshTokenChanged)
+    Q_PROPERTY(QUrl authorizationUrl READ authorizationUrl WRITE setAuthorizationUrl NOTIFY authorizationUrlChanged)
+    Q_PROPERTY(QUrl accessTokenUrl READ accessTokenUrl WRITE setAccessTokenUrl NOTIFY accessTokenUrlChanged)
+    Q_PROPERTY(bool authenticated READ isAuthenticated NOTIFY authenticatedChanged)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
 
@@ -53,7 +60,6 @@ public:
     explicit QGoogleAssistant(QObject *parent = nullptr);
     ~QGoogleAssistant();
 
-    QGoogleAssistantAuth *auth() const;
     QGoogleAssistantAudioInput *audioInput() const;
     QGoogleAssistantAudioOutput *audioOutput() const;
 
@@ -68,6 +74,28 @@ public:
 
     QString deviceModel() const;
     void setDeviceModel(const QString &model);
+
+    QString clientIdentifier() const;
+    void setClientIdentifier(const QString &clientIdentifier);
+
+    QString clientSecret() const;
+    void setClientSecret(const QString &clientSecret);
+
+    QString accessToken() const;
+    void setAccessToken(const QString &accessToken);
+
+    QString refreshToken() const;
+    void setRefreshToken(const QString &refreshToken);
+
+    QUrl authorizationUrl() const;
+    void setAuthorizationUrl(const QUrl &authorizationUrl);
+
+    QUrl accessTokenUrl() const;
+    void setAccessTokenUrl(const QUrl &accessTokenUrl);
+
+    QJsonObject credentials() const;
+
+    bool isAuthenticated() const;
 
     enum Status {
         Ok = 0,
@@ -94,19 +122,31 @@ public:
     QString lastError() const;
 
 public Q_SLOTS:
+    void authenticate();
     void textRequest(const QString &text);
     void audioRequest(const QByteArray &audio);
     void request(const QGoogleAssistantRequest &request);
 
 Q_SIGNALS:
-    void response(const QGoogleAssistantResponse &response);
-    void finished(Status status);
-    void statusChanged(Status status);
-    void lastErrorChanged(const QString &error);
     void localeChanged(const QLocale &locale);
     void apiEndpointChanged(const QString &apiEndpoint);
     void deviceIdentifierChanged(const QString &deviceIdentifier);
     void deviceModelChanged(const QString &deviceModel);
+    void clientIdentifierChanged(const QString &clientIdentifier);
+    void clientSecretChanged(const QString &clientSecret);
+    void accessTokenChanged(const QString &accessToken);
+    void refreshTokenChanged(const QString &refreshToken);
+    void authorizationUrlChanged(const QUrl &authorizationUrl);
+    void accessTokenUrlChanged(const QUrl &accessTokenUrl);
+    void authenticatedChanged(bool authenticated);
+    void statusChanged(Status status);
+    void lastErrorChanged(const QString &error);
+
+    void authenticated();
+    void authorizeWithBrowser(const QUrl &url);
+    void errorOccurred(const QString &errorString);
+    void response(const QGoogleAssistantResponse &response);
+    void finished(Status status);
 
 private:
     Q_DISABLE_COPY(QGoogleAssistant)

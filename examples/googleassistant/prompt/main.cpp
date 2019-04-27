@@ -43,13 +43,12 @@ int main(int argc, char *argv[])
     QTextStream qout(stdout);
 
     QGoogleAssistant assistant;
-    QGoogleAssistantAuth *auth = assistant.auth();
-    auth->setClientIdentifier("139782839008-p92a7t3bfia2c2bhudbc08batphlg1et.apps.googleusercontent.com");
-    auth->setClientSecret("mDT2imOGRTaAJyuussj5QbPP"); // not really a secret
+    assistant.setClientIdentifier("139782839008-p92a7t3bfia2c2bhudbc08batphlg1et.apps.googleusercontent.com");
+    assistant.setClientSecret("mDT2imOGRTaAJyuussj5QbPP"); // not really a secret
 
-    QObject::connect(auth, &QGoogleAssistantAuth::authorizeWithBrowser, &QDesktopServices::openUrl);
+    QObject::connect(&assistant, &QGoogleAssistant::authorizeWithBrowser, &QDesktopServices::openUrl);
 
-    QObject::connect(auth, &QGoogleAssistantAuth::errorOccurred, [&](const QString &errorString) {
+    QObject::connect(&assistant, &QGoogleAssistant::errorOccurred, [&](const QString &errorString) {
         qout << "ERROR:" << errorString << endl;
         app.quit();
     });
@@ -76,11 +75,11 @@ int main(int argc, char *argv[])
         notifier.setEnabled(true);
     });
 
-    QObject::connect(auth, &QGoogleAssistantAuth::authenticated, [&]() {
+    QObject::connect(&assistant, &QGoogleAssistant::authenticated, [&]() {
         qout << "> " << flush;
         notifier.setEnabled(true);
     });
 
-    auth->authenticate();
+    assistant.authenticate();
     return app.exec();
 }

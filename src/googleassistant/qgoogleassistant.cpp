@@ -40,17 +40,44 @@ limitations under the License.
 
 #include "qgoogleassistant.h"
 #include "qgoogleassistant_p.h"
-#include "qgoogleassistantauth.h"
 #include "qgoogleassistantaudioinput.h"
 #include "qgoogleassistantaudiooutput.h"
 #include "qgoogleassistantchannel_p.h"
 #include "qgoogleassistantrequest.h"
 #include "qgoogleassistantresponse.h"
 
+#include <QtCore/qloggingcategory.h>
 #include <QtCore/qthread.h>
-#include <QtGui/qdesktopservices.h>
+#include <QtCore/private/qobject_p.h>
+#include <QtNetwork/qnetworkreply.h>
+#include <QtNetworkAuth/qoauth2authorizationcodeflow.h>
+#include <QtNetworkAuth/qoauthhttpserverreplyhandler.h>
 
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcAuth, "qt.googleassistant.auth")
+
+class QGoogleAssistantAuthReplyHandler : public QOAuthHttpServerReplyHandler
+{
+    Q_OBJECT
+
+public:
+    explicit QGoogleAssistantAuthReplyHandler(QObject *parent = nullptr)
+        : QOAuthHttpServerReplyHandler(parent) { }
+
+signals:
+    void replyError(QNetworkReply::NetworkError error, const QString &errorString);
+
+protected:
+    void networkReplyFinished(QNetworkReply *reply) override
+    {
+        if (reply->error() != QNetworkReply::NoError) {
+            emit replyError(reply->error(), reply->errorString());
+            return;
+        }
+        QOAuthHttpServerReplyHandler::networkReplyFinished(reply);
+    }
+};
 
 QGoogleAssistantConfig QGoogleAssistantPrivate::createConfig() const
 {
@@ -111,7 +138,6 @@ QGoogleAssistant::QGoogleAssistant(QObject *parent)
     : QObject(*(new QGoogleAssistantPrivate), parent)
 {
     Q_D(QGoogleAssistant);
-    d->auth = new QGoogleAssistantAuth(this);
     d->audioInput = new QGoogleAssistantAudioInput(this);
     d->audioOutput = new QGoogleAssistantAudioOutput(this);
 
@@ -155,12 +181,6 @@ QGoogleAssistant::~QGoogleAssistant()
         thread->wait(2000);
         delete d->channel;
     }
-}
-
-QGoogleAssistantAuth *QGoogleAssistant::auth() const
-{
-    Q_D(const QGoogleAssistant);
-    return d->auth;
 }
 
 QGoogleAssistantAudioInput *QGoogleAssistant::audioInput() const
@@ -239,6 +259,119 @@ void QGoogleAssistant::setDeviceModel(const QString &deviceModel)
     emit deviceModelChanged(deviceModel);
 }
 
+QString QGoogleAssistant::clientIdentifier() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->clientIdentifier;
+}
+
+void QGoogleAssistant::setClientIdentifier(const QString &clientIdentifier)
+{
+    Q_D(QGoogleAssistant);
+    if (d->clientIdentifier == clientIdentifier)
+        return;
+
+    d->clientIdentifier = clientIdentifier;
+    emit clientIdentifierChanged(clientIdentifier);
+}
+
+QString QGoogleAssistant::clientSecret() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->clientSecret;
+}
+
+void QGoogleAssistant::setClientSecret(const QString &clientSecret)
+{
+    Q_D(QGoogleAssistant);
+    if (d->clientSecret == clientSecret)
+        return;
+
+    d->clientSecret = clientSecret;
+    emit clientSecretChanged(clientSecret);
+}
+
+QString QGoogleAssistant::accessToken() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->accessToken;
+}
+
+void QGoogleAssistant::setAccessToken(const QString &accessToken)
+{
+    Q_D(QGoogleAssistant);
+    if (d->accessToken == accessToken)
+        return;
+
+    d->accessToken = accessToken;
+    emit accessTokenChanged(accessToken);
+}
+
+QString QGoogleAssistant::refreshToken() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->refreshToken;
+}
+
+void QGoogleAssistant::setRefreshToken(const QString &refreshToken)
+{
+    Q_D(QGoogleAssistant);
+    if (d->refreshToken == refreshToken)
+        return;
+
+    d->refreshToken = refreshToken;
+    emit refreshTokenChanged(refreshToken);
+}
+
+QUrl QGoogleAssistant::accessTokenUrl() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->accessTokenUrl;
+}
+
+void QGoogleAssistant::setAccessTokenUrl(const QUrl &accessTokenUrl)
+{
+    Q_D(QGoogleAssistant);
+    if (d->accessTokenUrl == accessTokenUrl)
+        return;
+
+    d->accessTokenUrl = accessTokenUrl;
+    emit accessTokenUrlChanged(accessTokenUrl);
+}
+
+QUrl QGoogleAssistant::authorizationUrl() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->authorizationUrl;
+}
+
+void QGoogleAssistant::setAuthorizationUrl(const QUrl &authorizationUrl)
+{
+    Q_D(QGoogleAssistant);
+    if (d->authorizationUrl == authorizationUrl)
+        return;
+
+    d->authorizationUrl = authorizationUrl;
+    emit authorizationUrlChanged(authorizationUrl);
+}
+
+QJsonObject QGoogleAssistant::credentials() const
+{
+    Q_D(const QGoogleAssistant);
+    QJsonObject json;
+    json[QStringLiteral("client_id")] = d->clientIdentifier;
+    json[QStringLiteral("client_secret")] = d->clientSecret;
+    json[QStringLiteral("refresh_token")] = d->refreshToken;
+    json[QStringLiteral("type")] = QStringLiteral("authorized_user");
+    return json;
+}
+
+bool QGoogleAssistant::isAuthenticated() const
+{
+    Q_D(const QGoogleAssistant);
+    return d->authenticated;
+}
+
 QGoogleAssistant::Status QGoogleAssistant::status() const
 {
     Q_D(const QGoogleAssistant);
@@ -249,6 +382,77 @@ QString QGoogleAssistant::lastError() const
 {
     Q_D(const QGoogleAssistant);
     return d->lastError;
+}
+
+static QString authErrorToString(QAbstractOAuth::Error error)
+{
+    switch (error) {
+    case QAbstractOAuth::Error::NoError:
+        return QGoogleAssistant::tr("No error.");
+    case QAbstractOAuth::Error::NetworkError:
+        return QGoogleAssistant::tr("Failed to connect to the server.");
+    case QAbstractOAuth::Error::ServerError:
+        return QGoogleAssistant::tr("The server answered the request with an error.");
+    case QAbstractOAuth::Error::OAuthTokenNotFoundError:
+        return QGoogleAssistant::tr("The server's response to a token request provided no token identifier.");
+    case QAbstractOAuth::Error::OAuthTokenSecretNotFoundError:
+        return QGoogleAssistant::tr("The server's response to a token request provided no token secret.");
+    case QAbstractOAuth::Error::OAuthCallbackNotVerified:
+        return QGoogleAssistant::tr("The authorization server has not verified the supplied callback URI in the request.");
+    default:
+        return QGoogleAssistant::tr("Unknown error.");
+    }
+}
+
+void QGoogleAssistant::authenticate()
+{
+    Q_D(QGoogleAssistant);
+    QOAuth2AuthorizationCodeFlow *flow = new QOAuth2AuthorizationCodeFlow(this);
+    flow->setScope(QString::fromLocal8Bit(QUrl::toPercentEncoding(QStringLiteral("https://www.googleapis.com/auth/assistant-sdk-prototype"))));
+    flow->setClientIdentifier(d->clientIdentifier);
+    flow->setClientIdentifierSharedKey(d->clientSecret);
+    flow->setRefreshToken(d->refreshToken);
+    flow->setAccessTokenUrl(d->accessTokenUrl);
+    flow->setAuthorizationUrl(d->authorizationUrl);
+
+    flow->setModifyParametersFunction([&](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+        if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
+            parameters->insert(QStringLiteral("client_id"), QUrl::toPercentEncoding(d->clientIdentifier));
+            if (!d->clientSecret.isEmpty())
+                parameters->insert(QStringLiteral("client_secret"), d->clientSecret);
+        }
+    });
+
+    QObject::connect(flow, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &QGoogleAssistant::authorizeWithBrowser);
+    QObject::connect(flow, &QAbstractOAuth::granted, [=]() {
+        qCDebug(lcAuth) << "granted" << flow->token();
+        QString refreshToken = flow->refreshToken();
+        if (!refreshToken.isEmpty())
+            setRefreshToken(refreshToken);
+        flow->deleteLater();
+        d->authenticated = true;
+        emit authenticated();
+    });
+    QObject::connect(flow, &QAbstractOAuth::requestFailed, [=](QAbstractOAuth::Error error) {
+        QString errorString = authErrorToString(error);
+        qCWarning(lcAuth) << "request error" << errorString;
+        emit errorOccurred(errorString);
+    });
+
+    QGoogleAssistantAuthReplyHandler *replyHandler = new QGoogleAssistantAuthReplyHandler(flow);
+    flow->setReplyHandler(replyHandler);
+    connect(replyHandler, &QGoogleAssistantAuthReplyHandler::replyError, [=](QNetworkReply::NetworkError, const QString &errorString) {
+        qCWarning(lcAuth) << "reply error" << errorString;
+        emit errorOccurred(errorString);
+    });
+
+    if (d->refreshToken.isEmpty()) {
+        qCDebug(lcAuth) << "grant";
+        flow->grant();
+    } else {
+        qCDebug(lcAuth) << "refresh" << d->refreshToken;
+        flow->refreshAccessToken();
+    }
 }
 
 void QGoogleAssistant::textRequest(const QString &text)
@@ -276,3 +480,5 @@ void QGoogleAssistant::request(const QGoogleAssistantRequest &request)
 }
 
 QT_END_NAMESPACE
+
+#include "qgoogleassistant.moc"

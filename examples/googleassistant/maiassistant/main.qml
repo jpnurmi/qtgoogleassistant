@@ -16,7 +16,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
-        property string refreshToken: assistant.auth.refreshToken
+        property string refreshToken: assistant.refreshToken
     }
 
     GoogleAssistant {
@@ -24,10 +24,10 @@ ApplicationWindow {
 
         audioInput.enabled: button.pressed
 
-        auth.refreshToken: settings.refreshToken
-        auth.clientIdentifier: "139782839008-p92a7t3bfia2c2bhudbc08batphlg1et.apps.googleusercontent.com"
-        auth.clientSecret: "mDT2imOGRTaAJyuussj5QbPP" // not really a secret
-        auth.onAuthorizeWithBrowser: Qt.openUrlExternally(url)
+        refreshToken: settings.refreshToken
+        clientIdentifier: "139782839008-p92a7t3bfia2c2bhudbc08batphlg1et.apps.googleusercontent.com"
+        clientSecret: "mDT2imOGRTaAJyuussj5QbPP" // not really a secret
+        onAuthorizeWithBrowser: Qt.openUrlExternally(url)
 
         onResponse: {
             for (var i = 0; i < response.speechResultCount; ++i) {
@@ -39,7 +39,7 @@ ApplicationWindow {
                 addEntry(response.dialogStateOut.supplementalDisplayText)
         }
 
-        Component.onCompleted: auth.authenticate()
+        Component.onCompleted: authenticate()
     }
 
     function addEntry(entry) {
